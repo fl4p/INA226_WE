@@ -287,19 +287,21 @@ void INA226_WE::writeRegister(uint8_t reg, uint16_t val){
   _wire->endTransmission();
 }
   
-uint16_t INA226_WE::readRegister(uint8_t reg){
+bool INA226_WE::readRegister(uint8_t reg, uint16_t *regValue){
   uint8_t MSByte = 0, LSByte = 0;
-  uint16_t regValue = 0;
+  bool success = true;
   _wire->beginTransmission(i2cAddress);
-  _wire->write(reg);
-  _wire->endTransmission(false);
-  _wire->requestFrom(static_cast<uint8_t>(i2cAddress),static_cast<uint8_t>(2));
+  success = _wire->write(reg) == 1;
+  success &= _wire->endTransmission(false) == 0;
+  success &= _wire->requestFrom(static_cast<uint8_t>(i2cAddress),static_cast<uint8_t>(2)) == 2;
   if(_wire->available()){
     MSByte = _wire->read();
     LSByte = _wire->read();
+    *regValue = (MSByte<<8) + LSByte;
+  } else {
+      success = false;
   }
-  regValue = (MSByte<<8) + LSByte;
-  return regValue;
+  return success;
 }
     
 
