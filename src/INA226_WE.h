@@ -141,7 +141,7 @@ class INA226_WE
 
     
     
-    protected:
+    public:
         INA226_AVERAGES deviceAverages;
         INA226_CONV_TIME deviceConvTime;
         INA226_MEASURE_MODE deviceMeasureMode;

@@ -12,7 +12,7 @@
 #include <INA226_WE.h>
 #define I2C_ADDRESS 0x40
 
-int interruptPin = 2;
+int interruptPin = 41;
 volatile bool event = false;
 
 /* There are several ways to create your INA226 object:
@@ -24,8 +24,9 @@ volatile bool event = false;
 INA226_WE ina226 = INA226_WE(I2C_ADDRESS);
 
 void setup() {
-  Serial.begin(9600);
-  Wire.begin();
+  Serial.begin(115200);
+  Serial.println("Hi!");
+  Wire.begin(42, 2, 800000);
   ina226.init();
 
   /* Set Number of measurements for shunt and bus voltage which shall be averaged
@@ -39,7 +40,7 @@ void setup() {
   AVERAGE_512        512
   AVERAGE_1024      1024
   */
-  ina226.setAverage(AVERAGE_1024); 
+  ina226.setAverage(AVERAGE_16); 
 
   /* Set conversion time in microseconds
      One set of shunt and bus voltage conversion will take: 
@@ -55,7 +56,7 @@ void setup() {
      CONV_TIME_4156       4.156 ms
      CONV_TIME_8244       8.244 ms  
   */
-  ina226.setConversionTime(CONV_TIME_8244); // Conversion ready after conversion time x number of averages x 2
+  ina226.setConversionTime(CONV_TIME_1100); // Conversion ready after conversion time x number of averages x 2
   
   /* Set measure mode
   POWER_DOWN - INA226 switched off
@@ -78,6 +79,8 @@ void setup() {
   // ina226.setCorrectionFactor(0.95);
   
   Serial.println("INA226 Current Sensor Example Sketch - Continuous_Alert_Controlled");
+
+  pinMode(interruptPin, INPUT_PULLUP);
   
   attachInterrupt(digitalPinToInterrupt(interruptPin), alert, FALLING);
 
@@ -88,7 +91,7 @@ void loop() {
   if(event){
     ina226.readAndClearFlags(); // reads interrupt and overflow flags and deletes them 
     displayResults();
-    attachInterrupt(digitalPinToInterrupt(interruptPin), alert, FALLING); 
+    //attachInterrupt(digitalPinToInterrupt(interruptPin), alert, FALLING); 
     event = false;  
   }
   
@@ -124,5 +127,5 @@ void displayResults(){
 
 void alert(){
   event = true;
-  detachInterrupt(2);
+  //detachInterrupt(digitalPinToInterrupt(interruptPin));
 }
