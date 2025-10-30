@@ -294,8 +294,7 @@ bool INA226_WE::readRegister(uint8_t reg, uint16_t *regValue){
   success = _wire->write(reg) == 1;
   success &= _wire->endTransmission(false) == 0;
   success &= _wire->requestFrom(static_cast<uint8_t>(i2cAddress),static_cast<uint8_t>(2)) == 2;
-  //i2cErrorCode = !success;
-  if(_wire->available()){
+  if(_wire->available() == 2){
     MSByte = _wire->read();
     LSByte = _wire->read();
     *regValue = (MSByte<<8) + LSByte;
