@@ -157,15 +157,24 @@ class INA226_WE
         void writeRegister(uint8_t reg, uint16_t val);
         bool readRegister(uint8_t reg, uint16_t *val);
 
-    uint16_t readRegister(uint8_t reg) {
+    uint16_t readRegister(uint8_t reg, uint8_t tries = 2) {
         uint16_t val;
-        assert(readRegister(reg, &val));
-        return val;
+        for (auto i = 0; i < tries; i++) {
+            if (readRegister(reg, &val))
+                return val;
+            usleep(100);
+        }
+        assert(false);
     }
 
-    uint16_t readRegister(uint8_t reg, bool &success) {
+    uint16_t readRegister(uint8_t reg, bool &success, uint8_t tries = 2) {
         uint16_t val;
-        success = readRegister(reg, &val);
+        for (auto i = 0; i < tries; i++) {
+            success = readRegister(reg, &val);
+            if (success)
+                return val;
+            usleep(100);
+        }
         return val;
     }
 };
